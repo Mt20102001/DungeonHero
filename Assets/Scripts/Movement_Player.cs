@@ -41,7 +41,7 @@ public class Movement_Player : MonoBehaviour
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
 
-        if (CanMove)
+        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack") && CanMove)
         {
             TurnPlayer();
             animator.SetFloat("Horizontal", movement.x);
@@ -51,7 +51,7 @@ public class Movement_Player : MonoBehaviour
 
         //Input to Dash
         CheckDash();
-        if (Input.GetKeyDown(KeyCode.Space) && CanMove)
+        if (Input.GetKeyDown(KeyCode.Space) && !this.animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
         {
             AttemptToDash();
         }
@@ -60,46 +60,45 @@ public class Movement_Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (CanMove)
+        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack") && CanMove)
         {
             // Movement
             rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
-
-            // Direction
-            #region Direction
-            if (movement.x != 0 || movement.y != 0)
-            {
-                // Last movement X
-                if (movement.x > 0)
-                {
-                    animator.SetFloat("XPlayer", 1f);
-                }
-                else if (movement.x < 0)
-                {
-                    animator.SetFloat("XPlayer", -1f);
-                }
-                else
-                {
-                    animator.SetFloat("XPlayer", 0f);
-                }
-
-                // Last movement Y
-                if (movement.y > 0)
-                {
-                    animator.SetFloat("YPlayer", 1f);
-                }
-                else if (movement.y < 0)
-                {
-                    animator.SetFloat("YPlayer", -1f);
-                }
-                else
-                {
-                    animator.SetFloat("YPlayer", 0f);
-                }
-            }
-            #endregion
-
         }
+        // Direction
+        #region Direction
+        if (movement.x != 0 || movement.y != 0)
+        {
+            // Last movement X
+            if (movement.x > 0)
+            {
+                animator.SetFloat("XPlayer", 1f);
+            }
+            else if (movement.x < 0)
+            {
+                animator.SetFloat("XPlayer", -1f);
+            }
+            else
+            {
+                animator.SetFloat("XPlayer", 0f);
+            }
+
+            // Last movement Y
+            if (movement.y > 0)
+            {
+                animator.SetFloat("YPlayer", 1f);
+            }
+            else if (movement.y < 0)
+            {
+                animator.SetFloat("YPlayer", -1f);
+            }
+            else
+            {
+                animator.SetFloat("YPlayer", 0f);
+            }
+        }
+        #endregion
+
     }
 
     private void AttemptToDash()
@@ -119,7 +118,6 @@ public class Movement_Player : MonoBehaviour
             if (dashTimeLeft > 0)
             {
                 CanMove = false;
-                gameObject.GetComponent<Combat_Player>().CanAttack = false;
                 rb.velocity = movement * dashSpeed;
                 dashTimeLeft -= Time.deltaTime;
 
@@ -129,12 +127,11 @@ public class Movement_Player : MonoBehaviour
                     lastImageXpos = rb.transform.localScale.x;
                 }
             }
-
             if (dashTimeLeft <= 0)
             {
+                rb.velocity = Vector2.zero;
                 isDashing = false;
                 CanMove = true;
-                gameObject.GetComponent<Combat_Player>().CanAttack = true;
             }
         }
     }
